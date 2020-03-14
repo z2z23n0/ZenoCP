@@ -16,7 +16,7 @@
 - [背景](#Background)
 - [连接池功能点介绍](#Features)
 - [使用](#Usage)
-- [压力测试](#Stress Testing)
+- [压力测试](#Stress-Testing)
 - [使用许可](#License)
 
 ## Background
