@@ -1,0 +1,11 @@
+## 功能点设计思路
+
+- 连接池只需要一个实例，所以ConnectionPool以单例模式进行设计
+- 从ConnectionPool中可以获取和MySQL的连接Connection
+- 空闲连接Connection全部维护在一个线程安全的Connection队列中，使用线程互斥锁保证队列的线程安全
+- Connection队列为空还要获取连接时，需要动态创建连接，上限数量是maxSize
+- 队列中空闲连接时间超过maxIdleTime的就要被释放掉，只保留初始的initSize个连接就可以了，这个功能点需要放在独立的线程中去做
+- 当Connection队列为空并且此时连接的数量已达上限maxSize，那么如果等待connectionTimeout时间还获取不到空闲的连接的话，获取连接失败，此处从Connection队列获取空闲连接，可以使用带超时时间的mutex互斥锁来实现连接超时时间
+- 用户获取的连接用shared_ptr智能指针来管理，用lambda表达式定制连接回收的功能（并不真正释放连接，而是把连接归还到空闲连接队列中）
+- 连接的生产和连接的消费采用生产者-消费者线程模型来设计，使用了线程间的同步通信机制条件变量和互斥锁
+
